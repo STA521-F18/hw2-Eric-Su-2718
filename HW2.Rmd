@@ -46,11 +46,12 @@ on your findings regarding trying to predict `ModernC` from the other variables.
 library(GGally)
 ggpairs(UN3, title = "Relationship between variables in the UN3 dataset")
 ```
-Based on the scatter plots, the variables `Change`, `Fertility` and `Purban` seem to have linear relationships with `ModernC`. On the other hand, `ModernC` has non-linear relationships with variables `PPgdp`, `Frate` and `Pop` and thus may need transformation. There also appears to be outliers as can be seen in the scatter plots involving `Pop`. Two observations (*China*` and *India*) are significantly away from others.
+Based on the scatter plots, the variables `Change`, `Fertility` and `Purban` seem to have linear relationships with `ModernC`. On the other hand, `ModernC` has non-linear relationships with variables `PPgdp`, `Frate` and `Pop` and thus these predictors may need transformation. There also appears to be outliers as can be seen in the scatter plots involving `Pop`. Two observations (*China* and *India*) are significantly away from others.
 
+$\\$
 
 ## Model Fitting
-4.  Use the `lm()` function to perform a multiple linear regression with `ModernC` as the response and all other variables as the predictors, using the formula `ModernC ~ .`, where the `.` includes all remaining variables in the dataframe.  Create  diagnostic residual plot from the linear model object and comment on results regarding assumptions.  How many observations are used in your model fitting?
+4.  Use the `lm()` function to perform a multiple linear regression with `ModernC` as the response and all other variables as the predictors, using the formula `ModernC ~ .`, where the `.` includes all remaining variables in the dataframe. Create  diagnostic residual plot from the linear model object and comment on results regarding assumptions. How many observations are used in your model fitting?
 
 ```{r}
 lm_no_trans = lm(ModernC ~ ., data = UN3)
@@ -58,16 +59,18 @@ par(mfrow = c(2, 2))
 plot(lm_no_trans, ask = FALSE)
 summary(lm_no_trans)
 ```
-According to the diagnostic plots, we don't think there is a serious problem regarding unequal variance. However, observations `Cook Islands` and `Poland` could be outliers since both have large residuals and seem to be far from the theoretical normal quantiles. 85 observations were deleted due to having missing values, thus only 125 observations were used in this model.
+According to the diagnostic plots, we don't think there is a serious problem regarding unequal variance. However, observations *Cook Islands* and *Poland* could be outliers since both have large residuals and seem to be far from the theoretical normal quantiles. Observations *China* and *india* also have large leverage and Cook's distance. 85 observations were deleted due to having missing values, thus only 125 observations were used in this model.
 
+$\\$
 
 5. Examine added variable plots `car::avPlot` or `car::avPlots`  for your model above. Are there any plots that suggest that transformations are needed for any of the terms in the model? Describe. Is it likely that any of the localities are influential for any of the terms?  Which localities?  Which terms?  
 
 ```{r}
 avPlots(lm_no_trans)
 ```
-It seems that `PPgdp` and `Pop` need to be transfomed. 
+It seems that `PPgdp` and `Pop` need to be transfomed due to their extremely large scale reletive to `ModernC` and thus making the relationship non-linear. *China* and *india* are disproportionately influential for `Pop`. Additionally, *Cook.Islands* and *Kuwait* are influential for `Change`, while *Switzerland* and *Norway* are influential in `PPgdp`.
 
+$\\$
 
 6.  Using the Box-Tidwell `car::boxTidwell` or graphical methods find appropriate transformations of the predictor variables to be used as predictors in the linear model.  If any predictors are negative, you may need to transform so that they are non-negative. Describe your method and the resulting transformations.
 ```{r}
@@ -108,6 +111,16 @@ grid.arrange(Pop_p1, Pop_p2, ncol = 2)
 ```
 Similarly, a log-transformation helps seperate countries with different population number and makes the relationship clearer. Therefore, we will also apply log-transformation to `Pop`.
 
+$\\$
+$\\$
+$\\$
+$\\$
+$\\$
+$\\$
+$\\$
+$\\$
+$\\$
+$\\$
 
 7. Given the selected transformations of the predictors, select a transformation of the response using `MASS::boxcox` or `car::boxCox` and justify.
 ```{r}
@@ -116,6 +129,9 @@ box_cox = boxCox(lm_pred_trans)
 ```
 The optimal $\lambda$ suggested by the Box-Cox method is very close to 1, therefore we conclude that no transformation is necessary for the response variable `ModernC`. 
 
+$\\$
+$\\$
+
 8.  Fit the regression using the transformed variables.  Provide residual plots and added variables plots and comment.  If you feel that you need additional transformations of either the response or predictors, repeat any steps until you feel satisfied.
 ```{r}
 par(mfrow = c(2, 2))
@@ -123,6 +139,9 @@ plot(lm_pred_trans, ask = FALSE)
 avPlots(lm_pred_trans)
 ```
 Based on these plots, it looks like we have reduced the problem of non-normality and have also reduced the number of influential points in our model. However, some outliers still exist and we might want to remove them later.
+
+$\\$
+$\\$
 
 9. Start by finding the best transformation of the response and then find transformations of the predictors.  Do you end up with a different model than in 8?
 ```{r}
@@ -136,6 +155,7 @@ boxTidwell(ModernC ~ PPgdp + Pop, ~ Change + Frate + Fertility + Purban, data = 
 ```
 The Box-Tidwell test suggest no transformation for the predictor variables. However, using similar arguments we used previously, we will still apply log-transformations to both `PPgdp` and `Pop`. As a result, we ended up to with the identical model we had before.
 
+$\\$
 
 10.  Are there any outliers or influential points in the data?  Explain. If so, refit the model after removing any outliers and comment on residual plots.
 
@@ -145,11 +165,9 @@ lm_trans_rmout = lm(ModernC ~ Change + log(PPgdp) + Frate + log(Pop) + Fertility
 par(mfrow = c(2, 2))
 plot(lm_trans_rmout, ask = FALSE)
 ```
-
 Although we removed some outliers and influential points in our original model, new ones seem to pop up. If we keep removing outliers in our model, the same issue is likely to arise repeatedly. As the new outliers do not seem to cause new issues, we will stop removing them.
 
 ## Summary of Results
-
 11. For your final model, provide summaries of coefficients with 95% confidence intervals in a nice table with interpretations of each coefficient. These should be in terms of the original units!
 ```{r}
 conf_coef = confint(lm_trans_rmout)
@@ -166,7 +184,13 @@ kable(conf_coef, digits = 2, caption = "95% confidence interval of coefficients"
 library(stargazer)
 stargazer(lm_trans_rmout, title = "Summary of final regression model", header = FALSE, type = "latex", single.row = TRUE)
 ```
-As one can see from the summary table, all predictors except `Purban` are significant. 
+The summary table is created using the `R` package `stargazer`, see reference 1.
+
+My final model excluded observations `Cook.Islands`, `Poland` and `Kuwait` as they are highly influential and are not on the regression line as seen in the add variable plots. I also applied log-tranformation to both `PPgdp` and `Pop` since their relationships with `ModernC` become closer to linear after such transformation.
+
+As one can see from the summary table, all predictors except `Purban` are significant.Specifically, predictors `Change`, `log(PPgdp)`, `Frate` and `log(Pop)` have positive linear relationship with `ModernC`. 
+
+On the other hand, `Fertility` and `Purban` have negative relationship with `ModernC`.
 
 ## Methodology
 
