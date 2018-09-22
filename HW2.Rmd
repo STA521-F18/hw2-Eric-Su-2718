@@ -188,12 +188,14 @@ The summary table is created using the `R` package `stargazer`, see reference 1.
 
 My final model excluded observations `Cook.Islands`, `Poland` and `Kuwait` as they are highly influential and are not on the regression line as seen in the add variable plots. I also applied log-tranformation to both `PPgdp` and `Pop` since their relationships with `ModernC` become closer to linear after such transformation.
 
-As one can see from the summary table, all predictors except `Purban` are significant.Specifically, predictors `Change`, `log(PPgdp)`, `Frate` and `log(Pop)` have positive linear relationship with `ModernC`. 
+As one can see from the summary table, all predictors except `Purban` are significant. Specifically, predictors `Change`, `log(PPgdp)`, `Frate` and `log(Pop)` have positive linear relationship with `ModernC`. 
+The positive relationship between `Change` and `ModernC` is interesting as it suggests that higher population growth rate correlates with a higher percentage of contraception use among unmarried women, which is a bit counterintuitive. Further research might be needed to better understand this relationship. Other positive relationships are not as surprising, higher GDP per capita and more economically active women are both linked with more prevalent contraception usage. Our model also suggests that a higher population is correlated with higher perventage of contraception use for unmarried women. This relationship is also less intuitive but possible explanations such as more population leading to more economic strength may help explain this relationship.
 
-On the other hand, `Fertility` and `Purban` have negative relationship with `ModernC`.
+On the other hand, `Fertility` and `Purban` have negative relationships with `ModernC`. The negative link between the expected number of birth and usage of contraception methods is quite natural but the negative relationship of `Purban` and `ModernC` is rather unexpected. Our model indicates that a higher percentage of urban population is correlated with a lower percentage of centraception usage among unmarried women. Our intuition would probably tell us that a higher urban population leads to easier access of contraceptive methods for more people, thus our result is quite surprising. This could be due to positive correlations between `Purban` and other factors that increases ccontraception usage, as the "pure" correlation between `ModernC` and `Purban` is quite weak which can be seen from the added variable plot.
+
+Based on our final model, I would suggest further investigation on the variables `Change` and `Purban`. Specific coefficient values can also be used to predict the prevalence of contraceptive methods for other countries not used in this model.
 
 ## Methodology
-
 13. Prove that the intercept in the added variable scatter plot will always be zero.  _Hint:  use the fact that if $H$ is the project matrix which contains a column of ones, then $1_n^T (I - H) = 0$.  Use this to show that the sample mean of residuals will always be zero if there is an intercept._
 
 We have
@@ -212,7 +214,6 @@ Thus
 $$
 \begin{aligned}
 \bar{\hat{e}} &= \frac{\sum_{i=1}^{n} \hat{e}}{n} \\
-&= \frac{0}{n} \\
 &= 0
 \end{aligned}
 $$
